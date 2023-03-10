@@ -42,8 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #  用户模块
-    'users',
+
+    'users',  # 用户模块
+    'contents'  # 首页广告
 ]
 
 MIDDLEWARE = [
@@ -100,7 +101,7 @@ DATABASES = {
     #     # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',   # 配置mysql数据库引擎
+        'ENGINE': 'django.db.backends.mysql',  # 配置mysql数据库引擎
         'NAME': 'meiduo',
         'USER': 'ikun',
         'PASSWORD': '123123123',
