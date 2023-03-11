@@ -6,20 +6,26 @@ let vm = new Vue({
         password:'',
         password2:'',
         mobile:'',
+        image_code_url:'',
         image_code:'',
         sms_code:'',
         allow:'',
+        uuid:'',
 
         error_name: false,
         error_password: false,
         error_password2: false,
         error_mobile: false,
         error_image_code: false,
-        error_sms_code: false,
+        // error_sms_code: false,
         error_allow: false,
 
         error_name_message:'',
         error_mobile_message:'',
+        error_image_code_message:'',
+    },
+    mounted(){
+        this.generate_image_code();
     },
     methods:{ //定义和实现事件的方法
         check_username(){
@@ -85,6 +91,17 @@ let vm = new Vue({
             }
         },
         check_image_code(){
+            if (this.image_code.length != 4){
+                this.error_image_code_message = '请输入图形验证码';
+                this.error_image_code = true;
+            }
+            else{
+                this.error_image_code = false;
+            }
+        },
+        generate_image_code(){
+            this.uuid = generateUUID();
+            this.image_code_url = '/image_code/'+ this.uuid + '/';
         },
         check_sms_code(){
         },
