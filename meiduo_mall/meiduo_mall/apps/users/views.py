@@ -19,6 +19,14 @@ class UsernameCountView(View):
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'count': count})
 
 
+class MobileCountView(View):
+    """判断手机号是否重复注册"""
+
+    def get(self, request, mobile):
+        count = User.objects.filter(mobile=mobile).count()
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'count': count})
+
+
 class RegisterViews(View):
     """用户注册业务"""
 
