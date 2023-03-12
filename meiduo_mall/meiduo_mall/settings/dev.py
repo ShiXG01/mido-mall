@@ -157,7 +157,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "users.User"  # 定义用户模型类
+AUTH_USER_MODEL = "users.User"  # 指定自定义用户模型类
+AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileBackend']  # 指定自定义用户认证后端
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

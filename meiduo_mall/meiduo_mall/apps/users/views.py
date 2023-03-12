@@ -1,4 +1,4 @@
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -12,6 +12,40 @@ from meiduo_mall.utils.response_code import RETCODE
 
 
 # Create your views here.
+
+class LoginView(View):
+    """用户登录"""
+
+    def get(self, request):
+        return render(request, 'login.html')
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        remembered = request.POST.get('remembered')
+
+        if not all([username, password]):
+            return http.HttpResponseForbidden('缺少必要参数')
+        if not re.match(r'^[a-zA-Z\d_-]{5,20}$', username):
+            return http.HttpResponseForbidden('用户名不正确')
+        if not re.match(r'^[\dA-Za-z]{8,20}$', password):
+            return http.HttpResponseForbidden('请输入8-20位密码')
+
+        # 认证用户
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return render(request, 'login.html', {'account_errmsg': '账号或密码错误'})
+
+        login(request, user)
+
+        # 记住用户
+        if remembered != 'on':
+            request.session.set_expiry(0)
+        else:
+            request.session.set_expiry(None)
+
+        return redirect(reverse('contents:index'))
+
 
 class UsernameCountView(View):
     """判断用户是否重复注册"""

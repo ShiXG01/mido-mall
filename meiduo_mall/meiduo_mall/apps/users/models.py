@@ -12,4 +12,4 @@ class User(AbstractUser):
         verbose_name_plural = verbose_name
 
     def _str_(self):
-        return self.username, self.mobile
+        return self.username
