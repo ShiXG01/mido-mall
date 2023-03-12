@@ -2,16 +2,17 @@ from django.shortcuts import render
 from django.views import View
 from django_redis import get_redis_connection
 from django import http
-from tencentcloud.sms.v20210111 import sms_client, models
-from tencentcloud.common import credential
-from tencentcloud.common.exception import TencentCloudSDKException
 import random
-import json
 import logging
+# from tencentcloud.sms.v20210111 import sms_client, models
+# from tencentcloud.common import credential
+# from tencentcloud.common.exception import TencentCloudSDKException
+# import json
 
 from verifications.libs.captcha.captcha import captcha
 from . import constants
 from meiduo_mall.utils.response_code import RETCODE
+from celery_tasks.sms.tasks import send_sms_code
 
 # Create your views here.
 
@@ -88,5 +89,6 @@ class SMSCodeView(View):
         #     # print(err)
         #     logger.exception(err)
         #     return http.JsonResponse({'code': RETCODE.SMSCODERR, 'errmsg': '短信验证码发送失败'})
+        send_sms_code.delay(mobile, sms_code)
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
