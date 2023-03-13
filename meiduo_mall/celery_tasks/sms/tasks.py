@@ -33,7 +33,7 @@ def send_sms_code(mobile, sms_code):
         print(resp)
     except TencentCloudSDKException as err:
         # print(err)
-        logger.exception(err)
+        logger.error(err)
         # return http.JsonResponse({'code': RETCODE.SMSCODERR, 'errmsg': '短信验证码发送失败'})
         return -1
     return 0
