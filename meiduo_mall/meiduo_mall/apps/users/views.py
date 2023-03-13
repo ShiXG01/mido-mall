@@ -1,10 +1,11 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 from django import http
 from django.db import DatabaseError
 from django_redis import get_redis_connection
+from django.contrib.auth.mixins import LoginRequiredMixin
 import re
 
 from users.models import User
@@ -12,6 +13,31 @@ from meiduo_mall.utils.response_code import RETCODE
 
 
 # Create your views here.
+
+class UserInfoView(LoginRequiredMixin, View):
+    """用户中心"""
+
+    def get(self, request):
+        """提供用户中心界面"""
+        if request.user.is_authenticated:
+            return render(request, 'user_center_info.html')
+        else:
+            return redirect(reverse('users:login'))
+
+
+class LogoutView(View):
+    """用户退出"""
+
+    def get(self, requeest):
+        # 结束状态保持
+        logout(requeest)
+
+        # 删除cookie中的用户名
+        response = redirect(reverse('contents:index'))
+        response.delete_cookie('username')
+
+        return response
+
 
 class LoginView(View):
     """用户登录"""
@@ -44,7 +70,15 @@ class LoginView(View):
         else:
             request.session.set_expiry(None)
 
-        return redirect(reverse('contents:index'))
+        next = request.GET.get('next')
+        if next:
+            response = redirect(next)
+        else:
+            response = redirect(reverse('contents:index'))
+        # 将用户名缓存到cookie中
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
+        return response
 
 
 class UsernameCountView(View):
@@ -108,5 +142,9 @@ class RegisterViews(View):
 
         login(request, user)
 
+        response = redirect(reverse('contents:index'))
+        # 将用户名缓存到cookie中
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
         # return http.HttpResponse('注册成功')
-        return redirect(reverse('contents:index'))
+        return response
