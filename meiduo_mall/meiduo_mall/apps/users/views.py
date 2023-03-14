@@ -14,12 +14,37 @@ from django_redis import get_redis_connection
 from meiduo_mall.utils.response_code import RETCODE
 from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from users.models import User
-
+from celery_tasks.email.tasks import send_verify_email
+from users.utils import generate_verify_email_url, check_verify_email_token
 
 logger = logging.getLogger('django')
 
 
 # Create your views here.
+
+class VerifyEmailView(View):
+    """验证邮箱"""
+
+    def get(self, request):
+        token = request.GET.get('token')
+        if not token:
+            return http.HttpResponseForbidden('缺少token')
+
+        # 从token中提取用户信息
+        user = check_verify_email_token(token)
+        if not user:
+            return http.HttpResponseBadRequest('无效的token')
+
+        # 将用户的email_active设置为Ture
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            logger.error(e)
+            return http.HttpResponseServerError('邮箱激活失败')
+        else:
+            return redirect(reverse('users:info'))
+
 
 class EmailView(LoginRequiredJSONMixin, View):
     """添加邮箱"""
@@ -38,6 +63,10 @@ class EmailView(LoginRequiredJSONMixin, View):
         except Exception as e:
             logger.error(e)
             return http.JsonResponse({'code': RETCODE.DBERR, 'errmsg': '添加邮箱失败'})
+
+        # 发送email
+        verify_url = generate_verify_email_url(request.user)
+        send_verify_email.delay(email, verify_url)
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
 

@@ -1,7 +1,39 @@
 import re
 from django.contrib.auth.backends import ModelBackend
+from django.conf import settings
+from authlib.jose import jwt, JoseError
 
 from users.models import User
+
+
+def check_verify_email_token(token):
+    """反解邮箱验证token"""
+    key = settings.SECRET_KEY
+
+    try:
+        data = jwt.decode(token, key)
+    except JoseError:
+        return None
+    else:
+        user_id = data.get('user_id')
+        email = data.get('email')
+        try:
+            user = User.objects.get(id=user_id, email=email)
+        except User.DoesNotExist:
+            return None
+        else:
+            return user
+
+
+def generate_verify_email_url(user):
+    """生成用户验证邮箱连接"""
+    header = {'alg': 'HS256'}
+    key = settings.SECRET_KEY
+    # 待签名的数据负载
+    data = {'user_id': user.id, 'email': user.email}
+    token = jwt.encode(header=header, payload=data, key=key)
+
+    return settings.EMAIL_VERIFY_URL + '?token=' + token.decode()
 
 
 def get_user_by_account(account):
