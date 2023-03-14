@@ -1,26 +1,62 @@
+import json
+import re
+import logging
+
+from django import http
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import DatabaseError
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
-from django import http
-from django.db import DatabaseError
 from django_redis import get_redis_connection
-from django.contrib.auth.mixins import LoginRequiredMixin
-import re
 
-from users.models import User
 from meiduo_mall.utils.response_code import RETCODE
+from meiduo_mall.utils.views import LoginRequiredJSONMixin
+from users.models import User
+
+
+logger = logging.getLogger('django')
 
 
 # Create your views here.
+
+class EmailView(LoginRequiredJSONMixin, View):
+    """添加邮箱"""
+
+    def put(self, request):
+        json_dict = json.loads(request.body.decode())
+        email = json_dict.get('email')
+
+        if not re.match(r'^[a-z\d][\w\.\-]*@[a-z\d\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return http.HttpResponseForbidden('email参数有误')
+
+        # 将邮箱保存到用户数据库的email字段中
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+            logger.error(e)
+            return http.JsonResponse({'code': RETCODE.DBERR, 'errmsg': '添加邮箱失败'})
+
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
+
 
 class UserInfoView(LoginRequiredMixin, View):
     """用户中心"""
 
     def get(self, request):
         """提供用户中心界面"""
+
+        context = {
+            'username': request.user.username,
+            'mobile': request.user.mobile,
+            'email': request.user.email,
+            'email_active': request.user.email_active,
+        }
+
         if request.user.is_authenticated:
-            return render(request, 'user_center_info.html')
+            return render(request, 'user_center_info.html', context)
         else:
             return redirect(reverse('users:login'))
 
