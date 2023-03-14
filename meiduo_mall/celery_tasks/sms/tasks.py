@@ -11,8 +11,9 @@ logger = logging.getLogger('django')
 
 
 # 使用装饰器装饰异步任务，保证celery识别任务
-@celery_app.task(name='send_sms_code')
-def send_sms_code(mobile, sms_code):
+# @celery_app.task(name='send_sms_code')
+@celery_app.task(bind=True, name='send_sms_code', retry_backoff=3)
+def send_sms_code(self, mobile, sms_code):
     """发送短信验证码的异步任务"""
     # 发送短信验证码
     try:
@@ -31,9 +32,10 @@ def send_sms_code(mobile, sms_code):
         req.from_json_string(json.dumps(params))
         resp = client.SendSms(req)
         print(resp)
-    except TencentCloudSDKException as err:
+    except TencentCloudSDKException as e:
+        raise self.retry(exec=e, max_retries=3)
         # print(err)
-        logger.error(err)
+        # logger.error(err)
         # return http.JsonResponse({'code': RETCODE.SMSCODERR, 'errmsg': '短信验证码发送失败'})
         return -1
     return 0
