@@ -22,6 +22,13 @@ logger = logging.getLogger('django')
 
 # Create your views here.
 
+class AddressView(LoginRequiredMixin, View):
+    """用户收货地址"""
+
+    def get(self, request):
+        return render(request, 'user_center_site.html')
+
+
 class VerifyEmailView(View):
     """验证邮箱"""
 
