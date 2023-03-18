@@ -231,11 +231,8 @@ class AddressView(LoginRequiredMixin, View):
             }
             addresses_list.append(addresses_dict)
 
-        default_address_id = request.user.default_address_id
-        if default_address_id is None:
-            default_address_id = 0
         context = {
-            'default_address_id': default_address_id,
+            'default_address_id': request.user.default_address_id or 0,
             'addresses': addresses_list,
         }
 
