@@ -247,3 +247,9 @@ EMAIL_HOST_PASSWORD = 'lmyddzqbuyrvejgg'
 
 # 邮箱验证链接
 EMAIL_VERIFY_URL = '127.0.0.1:8000/emails/verifications/'
+
+# 指定自定义的django文件存储类
+DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
+
+# FastDFS相关参数
+FDFS_BASE_URL = 'http://192.168.192.137:8888/'
