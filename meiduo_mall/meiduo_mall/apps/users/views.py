@@ -17,11 +17,60 @@ from users.models import User, Address
 from celery_tasks.email.tasks import send_verify_email
 from users.utils import generate_verify_email_url, check_verify_email_token
 from . import constants
+from goods.models import SKU
 
 logger = logging.getLogger('django')
 
 
 # Create your views here.
+
+class UserBrowseHistory(LoginRequiredJSONMixin, View):
+    """用户浏览历史"""
+
+    def post(self, request):
+        """保存用户商品浏览记录"""
+        json_str = request.body.decode()
+        json_dict = json.loads(json_str)
+        sku_id = json_dict.get('sku_id')
+
+        try:
+            SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return http.HttpResponseForbidden('参数sku_id错误')
+
+        redis_conn = get_redis_connection('history')
+        user = request.user
+        pl = redis_conn.pipeline()
+        # 去重， 把与sku_id相同的历史清除
+        pl.lrem('history_%s' % user.id, 0, sku_id)
+        # 保存, 把sku_id存入历史列表
+        pl.lpush('history_%s' % user.id, sku_id)
+        # 截取, 取0到4的5个浏览历史记录
+        pl.ltrim('history_%s' % user.id, 0, 4)
+        # 执行
+        pl.execute()
+
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
+
+    def get(self, request):
+        """查询用户商品浏览记录"""
+        redis_conn = get_redis_connection('history')
+        user = request.user
+        # 取出列表数据
+        sku_ids = redis_conn.lrange('history_%s' % user.id, 0, -1)
+
+        # 查询sku_id对应的sku信息
+        skus = []
+        for sku_id in sku_ids:
+            sku = SKU.objects.get(id=sku_id)
+            skus.append({
+                'id': sku.id,
+                'name': sku.name,
+                'price': sku.price,
+                'default_image_url': sku.default_image.url,
+            })
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'skus': skus})
+
 
 class UpdateTitleAddressView(LoginRequiredJSONMixin, View):
     """修改收货地址标题"""
