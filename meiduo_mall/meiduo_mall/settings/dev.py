@@ -140,6 +140,13 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    "history": {  # 用户浏览历史
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://192.168.192.137:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
@@ -170,7 +177,8 @@ AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileBackend']  # 指定自定�
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
