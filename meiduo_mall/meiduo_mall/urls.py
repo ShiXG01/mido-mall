@@ -20,6 +20,9 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
+    # haystack
+    url(r'^search/', include('haystack.urls')),
+
     url(r'^', include(('users.urls', 'users'), namespace='users')),
     url(r'^', include(('contents.urls', 'contents'), namespace='contents')),
     url(r'^', include(('verifications.urls', 'verifications'))),
