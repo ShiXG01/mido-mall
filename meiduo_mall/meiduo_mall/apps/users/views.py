@@ -18,6 +18,7 @@ from celery_tasks.email.tasks import send_verify_email
 from users.utils import generate_verify_email_url, check_verify_email_token
 from . import constants
 from goods.models import SKU
+from carts.utils import merge_carts_cookies_redis
 
 logger = logging.getLogger('django')
 
@@ -408,6 +409,9 @@ class LoginView(View):
             response = redirect(reverse('contents:index'))
         # 将用户名缓存到cookie中
         response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
+        # 用户登录成功，合并cookie购物车到redis中
+        response = merge_carts_cookies_redis(request, response)
 
         return response
 

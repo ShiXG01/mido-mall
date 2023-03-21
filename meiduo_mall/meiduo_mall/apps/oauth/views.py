@@ -9,6 +9,7 @@ from django.urls import reverse
 from QQLoginTool.QQtool import OAuthQQ
 
 from meiduo_mall.utils.response_code import RETCODE
+from carts.utils import merge_carts_cookies_redis
 from oauth.models import OAuthQQUser
 from oauth.utils import generate_access_token, check_access_token
 from users.models import User
@@ -53,6 +54,9 @@ class QQAuthUserView(View):
 
             # 将用户名写入cookie中
             response.set_cookie('username', oauth_user.user.username, max_age=3600 * 24 * 15)
+
+            # 用户登录成功，合并cookie购物车到redis中
+            response = merge_carts_cookies_redis(request, response)
 
             return response
 
@@ -111,6 +115,9 @@ class QQAuthUserView(View):
 
         # 将用户名写入cookie中
         response.set_cookie('username', oauth_qq_user.user.username, max_age=3600 * 24 * 15)
+
+        # 用户登录成功，合并cookie购物车到redis中
+        response = merge_carts_cookies_redis(request, response)
 
         return response
 
