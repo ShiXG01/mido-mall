@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'oauth',  # 第三方登录
     'areas',  # 省市区三级联动
     'goods',  # 商品模块
+    'carts',  # 购物车
 ]
 
 MIDDLEWARE = [
@@ -143,6 +144,13 @@ CACHES = {
     "history": {  # 用户浏览历史
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://192.168.192.137:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "carts": {  # 用户浏览历史
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://192.168.192.137:6379/4",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
