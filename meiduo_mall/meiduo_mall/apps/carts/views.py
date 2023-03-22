@@ -10,6 +10,48 @@ from meiduo_mall.utils.response_code import RETCODE
 
 # Create your views here.
 
+class CartsSimpleView(View):
+    """简单展示商品购物车"""
+
+    def get(self, request):
+        """简单展示购物车"""
+        user = request.user
+        # 检查用户是否登录
+        if user.is_authenticated:
+            redis_conn = get_redis_connection('carts')
+            # pl = redis_conn.pipeline()
+            redis_cart = redis_conn.hgetall('carts_%s' % user.id)
+            redis_selected = redis_conn.smembers('selected_%s' % user.id)
+            # pl.execute()
+            cart_dict = {}
+            for sku_id, count in redis_cart.items():
+                cart_dict[int(sku_id)] = {
+                    'count': int(count),
+                    'selected': sku_id in redis_selected,
+                }
+        else:
+            carts_str = request.COOKIES.get('carts')
+            if carts_str:  # 判断是否有购物车cookie
+                carts_str_bytes = carts_str.encode()
+                carts_dict_bytes = base64.b64decode(carts_str_bytes)
+                cart_dict = pickle.loads(carts_dict_bytes)  # 读取购物车cookie
+            else:
+                cart_dict = {}  # 新建购物车cookie
+
+        sku_ids = cart_dict.keys()
+        skus = SKU.objects.filter(id__in=sku_ids)
+        cart_skus = []
+        for sku in skus:
+            cart_skus.append({
+                'id': sku.id,
+                'count': cart_dict.get(sku.id).get('count'),
+                'name': sku.name,
+                'default_image_url': sku.default_image.url,
+            })
+
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'cart_skus': cart_skus})
+
+
 class CartsSelectAllView(View):
     """全选购物车"""
 
