@@ -31,7 +31,7 @@ SECRET_KEY = 'n()xnu@r01mh!$r*fbr)txaf(man2_qnui2&0q%1+s$8amor(7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'www.meiduo.site']
+ALLOWED_HOSTS = ['127.0.0.1', 'www.meiduo.site', '100.66.169.227']
 
 # Application definition
 
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'goods',  # 商品模块
     'carts',  # 购物车
     'orders',  # 订单
+    'payment',  # 支付
 ]
 
 MIDDLEWARE = [
@@ -286,3 +287,9 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 # haystack分页时每页的记录条数
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+
+# 支付宝
+ALIPAY_APPID = '2021000122668346'
+ALIPAY_DEBUG = True
+ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
+ALIPAY_RETURN_URL = 'http://100.66.169.227:8000/payment/status/'
