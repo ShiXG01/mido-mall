@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -317,3 +318,31 @@ CORS_ORIGIN_WHITELIST = (
     # 'api.meiduo.site:8000'
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
+REST_FRAMEWORK = {
+    # 指定认证
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+# JWt配置
+JWT_AUTH = {
+    # # 指定有效期
+    # 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    # 指定返回结果方法
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'meiduo_admin.utils.jwt_response_payload_handler',
+}
+
+SIMPLE_JWT = {
+    # token有效时长(返回的 access 有效时长)
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    # token刷新的有效时间(返回的 refresh 有效时长)
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
+}
+
+CSRF_TRUSTED_ORIGINS = ['chrome-extension://ieoejemkppmjcdfbnfphhpbfmallhfnc']

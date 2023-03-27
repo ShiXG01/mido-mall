@@ -390,7 +390,7 @@ class LoginView(View):
             return http.HttpResponseForbidden('请输入8-20位密码')
 
         # 认证用户
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password)
         if user is None:
             return render(request, 'login.html', {'account_errmsg': '账号或密码错误'})
 

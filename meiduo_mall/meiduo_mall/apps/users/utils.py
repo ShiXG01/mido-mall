@@ -55,10 +55,21 @@ class UsernameMobileBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         """重写用户认证方法"""
-        # 查询用户
-        user = get_user_by_account(username)
+        if request is None:
+            # 后台登录
+            try:
+                # 查询超级管理员用户
+                user = User.objects.get(username=username, is_superuser=True)
+            except User.DoesNotExist:
+                user = None
 
-        if user and user.check_password(password):
-            return user
+            if user is not None and user.check_password(password):
+                return user
         else:
-            return None
+            # 查询用户
+            user = get_user_by_account(username)
+
+            if user and user.check_password(password):
+                return user
+            else:
+                return None
