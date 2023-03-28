@@ -279,6 +279,7 @@ DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
 
 # FastDFS相关参数
 FDFS_BASE_URL = 'http://192.168.192.137:8888/'
+FASTDFS_PATH = os.path.join(BASE_DIR, 'utils/fastdfs/client.conf')
 
 HAYSTACK_CONNECTIONS = {
     'default': {
