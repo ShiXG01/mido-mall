@@ -2,10 +2,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 
-from goods.models import SPUSpecification
+from goods.models import SPUSpecification, SPU
 from meiduo_admin.serialziers.specs import SpecsSerializer, SPUSerializer
 from meiduo_admin.utils import PageNum
-from goods.models import SPU
 
 
 class SpecsView(ModelViewSet):
