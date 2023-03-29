@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import statistical, users, specs, images
+from .views import statistical, users, specs, images, skus
 
 urlpatterns = [
     url(r'^authorizations/$', obtain_jwt_token),
@@ -20,17 +20,25 @@ urlpatterns = [
     url(r'goods/simple/$', specs.SpecsView.as_view({'get': 'simple'})),
 
     url(r'skus/simple/$', images.ImagesView.as_view({'get': 'simple'})),
+
+    url(r'goods/(?P<pk>\d+)/specs/$', skus.SKUView.as_view({'get': 'specs'})),
 ]
 
 # 自动生成路由
 # 规格表路由
 router = DefaultRouter()
 router.register('goods/specs', specs.SpecsView, basename='specs')
-print(router.urls)
+# print(router.urls)
 urlpatterns += router.urls
 
 # 图片表路由
 router = DefaultRouter()
 router.register('skus/images', images.ImagesView, basename='images')
-print(router.urls)
+# print(router.urls)
+urlpatterns += router.urls
+
+# SKU路由
+router = DefaultRouter()
+router.register('skus', skus.SKUView, basename='skus')
+# print(router.urls)
 urlpatterns += router.urls
