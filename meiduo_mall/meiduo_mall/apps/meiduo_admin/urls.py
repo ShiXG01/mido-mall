@@ -70,5 +70,5 @@ urlpatterns += router.urls
 # 管理员路由
 router = DefaultRouter()
 router.register('permission/admins', admin.AdminView, basename='admin')
-print(router.urls)
+# print(router.urls)
 urlpatterns += router.urls
