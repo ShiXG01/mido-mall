@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import statistical, users, specs, images, skus, orders
+from .views import statistical, users, specs, images, skus, orders, permissions, group, admin
 
 urlpatterns = [
     url(r'^authorizations/$', obtain_jwt_token),
@@ -22,6 +22,12 @@ urlpatterns = [
     url(r'skus/simple/$', images.ImagesView.as_view({'get': 'simple'})),
 
     url(r'goods/(?P<pk>\d+)/specs/$', skus.SKUView.as_view({'get': 'specs'})),
+
+    url(r'permission/content_type/$', permissions.PermissionsView.as_view({'get': 'content_type'})),
+
+    url(r'permission/simple/$', group.GroupView.as_view({'get': 'simple'})),
+
+    url(r'permission/groups/simple/$', admin.AdminView.as_view({'get': 'simple'})),
 ]
 
 # 自动生成路由
@@ -46,5 +52,23 @@ urlpatterns += router.urls
 # 订单路由
 router = DefaultRouter()
 router.register('orders', orders.OrderView, basename='orders')
+# print(router.urls)
+urlpatterns += router.urls
+
+# 权限路由
+router = DefaultRouter()
+router.register('permission/perms', permissions.PermissionsView, basename='perms')
+# print(router.urls)
+urlpatterns += router.urls
+
+# 分组路由
+router = DefaultRouter()
+router.register('permission/groups', group.GroupView, basename='groups')
+# print(router.urls)
+urlpatterns += router.urls
+
+# 管理员路由
+router = DefaultRouter()
+router.register('permission/admins', admin.AdminView, basename='admin')
 print(router.urls)
 urlpatterns += router.urls
