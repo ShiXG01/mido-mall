@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import statistical, users, specs, images, skus
+from .views import statistical, users, specs, images, skus, orders
 
 urlpatterns = [
     url(r'^authorizations/$', obtain_jwt_token),
@@ -41,4 +41,10 @@ urlpatterns += router.urls
 router = DefaultRouter()
 router.register('skus', skus.SKUView, basename='skus')
 # print(router.urls)
+urlpatterns += router.urls
+
+# 订单路由
+router = DefaultRouter()
+router.register('orders', orders.OrderView, basename='orders')
+print(router.urls)
 urlpatterns += router.urls
