@@ -17,7 +17,72 @@ from meiduo_mall.utils.response_code import RETCODE
 
 # Create your views here.
 
+class CommentView(LoginRequiredMixin, View):
+    """商品评价界面"""
+
+    def get(self, request):
+        # 接收订单编号
+        order_id = request.GET.get('order_id')
+
+        # 查询订单商品信息
+        try:
+            order = OrderInfo.objects.get(order_id=order_id)
+        except OrderInfo.DoesNotExist:
+            return http.HttpResponseForbidden('订单号不存在')
+
+        # 获取订单商品的sku
+        skus = []
+        for detail in order.skus.filter(is_commented=False):
+            skus.append({
+                'sku_id': detail.sku.id,
+                'default_image_url': detail.sku.default_image.url,
+                'name': detail.sku.name,
+                'price': str(detail.price),
+                'order_id': order_id
+            })
+
+        context = {
+            'skus': skus,
+        }
+        return render(request, 'goods_judge.html', context=context)
+
+    def post(self, request):
+        # 接收参数
+        data = json.loads(request.body.decode())
+        order_id = data.get('order_id')
+        sku_id = data.get('sku_id')
+        comment = data.get('comment')
+        score = data.get('score')
+        is_anonymous = data.get('is_anonymous')
+
+        # 验证参数
+        if not all([order_id, sku_id, comment, score]):
+            return http.JsonResponse({
+                'code': RETCODE.PARAMERR,
+                'errmsg': '参数不完整'
+            })
+        if not isinstance(is_anonymous, bool):
+            return http.JsonResponse({
+                'code': RETCODE.PARAMERR,
+                'errmsg': '是否匿名参数错误'
+            })
+        # 查询OrderGoods对象
+        order_goods = OrderGoods.objects.get(order_id=order_id, sku_id=sku_id)
+        order_goods.comment = comment
+        order_goods.score = int(score)
+        order_goods.is_anonymous = is_anonymous
+        order_goods.is_commented = True
+        order_goods.save()
+
+        return http.JsonResponse({
+            'code': RETCODE.OK,
+            'errmsg': 'OK'
+        })
+
+
 class InfoView(LoginRequiredMixin, View):
+    """展示登录用户所有订单"""
+
     def get(self, request, page_num):
         # 查询当前登录用户的所有订单
         order_list = request.user.orders.order_by('-create_time')
@@ -148,7 +213,8 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                         # sku.save()
                         new_stock = origin_stock - sku_count
                         new_sales = origin_sales + sku_count
-                        result = SKU.objects.filter(id=sku_id, stock=origin_stock).update(stock=new_stock, sales=new_sales)
+                        result = SKU.objects.filter(id=sku_id, stock=origin_stock).update(stock=new_stock,
+                                                                                          sales=new_sales)
                         if result == 0:
                             continue
 
