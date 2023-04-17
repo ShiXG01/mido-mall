@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.views import View
 from django_redis import get_redis_connection
@@ -15,6 +16,47 @@ from meiduo_mall.utils.response_code import RETCODE
 
 
 # Create your views here.
+
+class InfoView(LoginRequiredMixin, View):
+    def get(self, request, page_num):
+        # 查询当前登录用户的所有订单
+        order_list = request.user.orders.order_by('-create_time')
+
+        # 分页
+        paginator = Paginator(order_list, 2)
+        # 获取当前页数据
+        page = paginator.page(page_num)
+
+        # 遍历当前页数据，转换页面中需要的结构
+        order_list2 = []
+        for order in page:
+            # 获取当前订单中所有订单商品
+            detail_list = []
+            for detail in order.skus.all():
+                detail_list.append({
+                    'default_image_url': detail.sku.default_image.url,
+                    'name': detail.sku.name,
+                    'price': detail.price,
+                    'count': detail.count,
+                    'total_amount': detail.price * detail.count
+                })
+
+            order_list2.append({
+                'create_time': order.create_time,
+                'order_id': order.order_id,
+                'details': detail_list,
+                'total_amount': order.total_amount,
+                'freight': order.freight,
+                'status': order.status
+            })
+
+        context = {
+            'page': order_list2,
+            'page_num': page_num,
+            'total_page': paginator.num_pages
+        }
+        return render(request, 'user_center_order.html', context)
+
 
 class OrderSuccessView(LoginRequiredMixin, View):
     """提交订单成功页面"""
