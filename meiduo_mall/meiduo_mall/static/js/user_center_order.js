@@ -33,7 +33,17 @@ var vm = new Vue({
                 location.href = '/orders/comment/?order_id=' + order_id;
             } else {
                 // 其他：待收货。。。
-                location.href = '/';
+                // location.href = '/';
+                var url = this.host + '/receive/?order_id=' + order_id;
+                axios.get(url, {
+                    responseType: 'json'
+                })
+                    .then(response => {
+                        status = response.status
+                    })
+                    .catch(error => {
+                        console.log(error.response);
+                    });
             }
         },
     }

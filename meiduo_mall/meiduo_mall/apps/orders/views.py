@@ -17,6 +17,28 @@ from meiduo_mall.utils.response_code import RETCODE
 
 # Create your views here.
 
+class ReceiveGoodView(LoginRequiredJSONMixin, View):
+    """收货完成"""
+
+    def get(self, request):
+        order_id = request.GET.get('order_id')
+        # 获取订单信息
+        try:
+            order = OrderInfo.objects.get(order_id=order_id)
+        except OrderInfo.DoesNotExist:
+            return http.HttpResponseForbidden('订单号不存在')
+
+        # 修改订单状态
+        order.status = 4
+        order.save()
+
+        return http.JsonResponse({
+            'code': RETCODE.OK,
+            'errmsg': "OK",
+            'status': order.status
+        })
+
+
 class CommentSKUView(View):
     """展示SKU商品评价"""
 
