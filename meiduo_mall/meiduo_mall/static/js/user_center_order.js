@@ -38,7 +38,7 @@ var vm = new Vue({
         },
     }
 });
-  function getCookie(name) {
+function getCookie(name) {
     var dc = document.cookie;
     var prefix = name + "=";
     var begin = dc.indexOf(prefix);
