@@ -25,6 +25,40 @@ logger = logging.getLogger('django')
 
 # Create your views here.
 
+class PwdView(LoginRequiredMixin, View):
+    """修改密码"""
+
+    def get(self, request):
+        # 展示修改密码页面
+        return render(request, 'user_center_pass.html')
+
+    def post(self, request):
+        # 修改密码业务逻辑
+        # 接收参数
+        old_pwd = request.POST.get('old_pwd')
+        new_pwd = request.POST.get('new_pwd')
+        new_cpwd = request.POST.get('new_cpwd')
+
+        # 校验参数
+        user = request.user
+        if not all([old_pwd, new_pwd, new_cpwd]):
+            return http.HttpResponseForbidden('缺少必要参数')
+        if not user.check_password(old_pwd):  # 旧密码是否正确
+            return http.HttpResponseForbidden('旧密码错误')
+        if not re.match(r'^[\dA-Za-z]{8,20}$', new_pwd):
+            return http.HttpResponseForbidden('请输入8-20位密码')
+        # 确认密码
+        if new_pwd != new_cpwd:
+            return http.HttpResponseForbidden('两个密码不一致')
+        if new_pwd == old_pwd:
+            return http.HttpResponseForbidden('新密码与旧密码相同')
+
+        user.set_password(new_pwd)
+        user.save()
+
+        return render(request, 'user_center_pass.html')
+
+
 class UserBrowseHistory(LoginRequiredJSONMixin, View):
     """用户浏览历史"""
 
@@ -169,7 +203,7 @@ class UpdateDestroyAddressView(LoginRequiredJSONMixin, View):
         }
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '修改地址成功', 'address': address_dict})
 
-    def deleted(self,request, address_id):
+    def deleted(self, request, address_id):
         """删除地址"""
         try:
             address = Address.objects.get(id=address_id)
