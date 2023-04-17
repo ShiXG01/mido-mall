@@ -18,7 +18,7 @@ from meiduo_mall.utils.response_code import RETCODE
 # Create your views here.
 
 class CommentSKUView(View):
-    """SKU商品评价"""
+    """展示SKU商品评价"""
 
     def get(self, request, sku_id):
         # 查询指定sku_id的所有评论信息
@@ -97,6 +97,8 @@ class CommentView(LoginRequiredMixin, View):
         order_goods.score = int(score)
         order_goods.is_anonymous = is_anonymous
         order_goods.is_commented = True
+        order_goods.order.status = 5
+        order_goods.order.save()
         order_goods.save()
 
         return http.JsonResponse({
