@@ -17,8 +17,33 @@ from meiduo_mall.utils.response_code import RETCODE
 
 # Create your views here.
 
+class CommentSKUView(View):
+    """SKU商品评价"""
+
+    def get(self, request, sku_id):
+        # 查询指定sku_id的所有评论信息
+        comments = OrderGoods.objects.filter(sku_id=sku_id, is_commented=True)
+        comment_list = []
+        # detail表示OrderGoods对象
+        for detail in comments:
+            username = detail.order.user.username
+            if detail.is_anonymous:  # 匿名用户
+                username = '******'
+            comment_list.append({
+                'username': username,
+                'comment': detail.comment,
+                'score': detail.score
+            })
+
+        return http.JsonResponse({
+            'code': RETCODE.OK,
+            'errmsg': "OK",
+            'comment_list': comment_list
+        })
+
+
 class CommentView(LoginRequiredMixin, View):
-    """商品评价界面"""
+    """商品评价"""
 
     def get(self, request):
         # 接收订单编号

@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^orders/success/$', views.OrderSuccessView.as_view()),
     url('^orders/info/(?P<page_num>\d+)/$', views.InfoView.as_view(), name='info'),
     url('^orders/comment/$', views.CommentView.as_view()),
+    url('^comments/(?P<sku_id>\d+)/$', views.CommentSKUView.as_view()),
 ]
