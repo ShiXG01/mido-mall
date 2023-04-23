@@ -32,7 +32,8 @@ SECRET_KEY = 'n()xnu@r01mh!$r*fbr)txaf(man2_qnui2&0q%1+s$8amor(7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'www.meiduo.site', '100.66.169.227']
+# ALLOWED_HOSTS = ['127.0.0.1', 'www.meiduo.site', '100.66.10.185']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -66,7 +67,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -315,6 +316,8 @@ CORS_ORIGIN_WHITELIST = (
     'https://127.0.0.1:8080',
     'https://127.0.0.1:8000',
     'https://localhost:8080',
+    'http://192.168.192.137:8888',
+    'https://100.66.169.227:8000',
     # 'www.meiduo.site:8080',
     # 'api.meiduo.site:8000'
 )
